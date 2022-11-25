@@ -1,9 +1,8 @@
-using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
+using SmartGuard.WebApi.Host.Extensions;
 using SmartGuard.WebApi.Host.HostedServices;
 using SmartGuard.WebApi.Host.Hubs;
 using SmartGuard.WebApi.Host.Producers;
+using SmartGuard.WebApi.Host.Services;
 
 const string corsName = "AllowAll";
 
@@ -17,7 +16,15 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddTransient<IZoomMessageProducer, ZoomMessageProducer>();
+builder.Services.AddTransient<IUserService, UserService>();
+builder.Services.AddTransient<IZoomService, ZoomService>();
 builder.Services.AddHostedService<ZoomHostedService>();
+builder.Services.AddStackExchangeRedisCache(opts =>
+{
+    opts.Configuration = builder.Configuration.GetConnectionString("Redis");
+    opts.InstanceName = "SmartGuard";
+});
+builder.Services.AddMemoryCache();
 
 if (env.IsDevelopment())
 {
@@ -60,5 +67,7 @@ app.UseAuthorization();
 
 app.MapControllers();
 app.MapHub<ZoomHub>("/hub/zoom");
+
+await app.PopulateLocalDbAsync();
 
 app.Run();

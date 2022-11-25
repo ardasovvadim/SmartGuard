@@ -1,21 +1,35 @@
 import os
-import pika
 import sys
+import argparse
+from smartguard.consumers import face_detecting_consumer, face_verify_consumer
 
 
 def main():
-    connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
-    channel = connection.channel()
+    ap = argparse.ArgumentParser()
+    ap.add_argument("-c", "--consummer", type=str, required=True, help="Consumer name")
+    args = vars(ap.parse_args())
 
-    channel.queue_declare(queue='zoom2', exclusive=False, auto_delete=False, durable=False)
+    consumers = {
+        'faceDetecting': face_detecting_consumer.prepare,
+        'faceVerifying': face_verify_consumer.prepare,
+    }
 
-    def callback(ch, method, properties, body):
-        print("[zoom] Received %r" % body)
+    consumerPrepare = consumers.get(args['consummer'])
 
-    channel.basic_consume(queue='zoom2', on_message_callback=callback, auto_ack=True)
+    if consumerPrepare is None:
+        print(f'Consumer {args["consummer"]} not found')
+        stop()
+        return
 
-    print('[*] Waiting for messages. To exit press CTRL+C')
-    channel.start_consuming()
+    consumer = consumerPrepare()
+    consumer()
+
+
+def stop():
+    try:
+        sys.exit(0)
+    except SystemExit:
+        os._exit(0)
 
 
 if __name__ == '__main__':
@@ -23,7 +37,4 @@ if __name__ == '__main__':
         main()
     except KeyboardInterrupt:
         print('Interrupted')
-        try:
-            sys.exit(0)
-        except SystemExit:
-            os._exit(0)
+        stop()

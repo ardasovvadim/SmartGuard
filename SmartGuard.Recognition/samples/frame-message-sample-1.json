@@ -1,0 +1,22 @@
+{
+  "sessionId": "62F14AE232ED4AC3BD083C5ED1433D25",
+  "filePath": "/Users/ardasovvadim/dev/Workspaces/dotnet/SmartGuard/SmartGuar.WebApi.Host/sessions/62F14AE232ED4AC3BD083C5ED1433D25/frames/frame_1669154942.jpg",
+  "attendees": [
+    {
+      "userId": null,
+      "userName": "Test User",
+      "height": 369,
+      "width": 656,
+      "x": 62,
+      "y": 178
+    },
+    {
+      "userId": null,
+      "userName": "Angular2222",
+      "height": 369,
+      "width": 656,
+      "x": 722,
+      "y": 178
+    }
+  ]
+}

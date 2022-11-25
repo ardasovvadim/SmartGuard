@@ -1,25 +1,30 @@
-using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.IdentityModel.Tokens;
 using SmartGuard.WebApi.Host.Extensions;
-using SmartGuard.WebApi.Host.Models.Zoom;
+using SmartGuard.WebApi.Host.Helpers;
+using SmartGuard.WebApi.Host.Messages;
+using SmartGuard.WebApi.Host.Models;
 using SmartGuard.WebApi.Host.Producers;
+using SmartGuard.WebApi.Host.Services;
 
 namespace SmartGuard.WebApi.Host.Controllers;
 
 [ApiController, Route("api/[controller]")]
 public class ZoomController : ControllerBase
 {
-    private readonly IDistributedCache _cache;
     private readonly IZoomMessageProducer _zoomMessageProducer;
+    private readonly ILogger<ZoomController> _logger;
+    private readonly IUserService _userService;
+    private readonly IZoomService _zoomService;
 
-    public ZoomController(IDistributedCache cache, IZoomMessageProducer zoomMessageProducer)
+    public ZoomController(IZoomMessageProducer zoomMessageProducer, ILogger<ZoomController> logger, IUserService userService, IZoomService zoomService)
     {
-        _cache = cache;
         _zoomMessageProducer = zoomMessageProducer;
+        _logger = logger;
+        _userService = userService;
+        _zoomService = zoomService;
     }
 
     [HttpGet("signature")]
@@ -53,32 +58,95 @@ public class ZoomController : ControllerBase
     }
 
     [HttpPost("session")]
-    public async Task<ZoomSession> CreateSessionAsync()
+    public async Task<ZoomSession> CreateSessionAsync(CreateSessionDto dto)
     {
-        var sessionId = Guid.NewGuid().ToString("N").ToUpper();
-        var zoomSession = new ZoomSession
-        {
-            Id = sessionId,
-            ConnectionId = "test",
-            CreateTime = DateTime.UtcNow
-        };
+        var zoomSession = await _zoomService.CreateSessionAsync(dto);
         
-        await _cache.SetAsync(sessionId, zoomSession, new DistributedCacheEntryOptions
-        {
-            SlidingExpiration = TimeSpan.FromHours(1)
-        });
+        _logger.LogInformation("Created session {SessionId}", zoomSession.SessionId);
 
         return zoomSession;
     }
-
-    [HttpPost("session/{sessionId}/frame")]
-    public async Task NextFrameAsync([FromRoute] string sessionId, [FromBody] FrameDataDto frameDataDto)
+    
+    [HttpPost("session/{sessionId}/refresh")]
+    public async Task<IActionResult> RefreshSessionAsync([FromRoute] string sessionId, [FromBody] RefreshSessionDto dto)
     {
-        var bytes = Convert.FromBase64String(frameDataDto.Content);
-        var fileName = $"sessions/{sessionId}/frames/frame_{DateTime.Now.ToString(CultureInfo.InvariantCulture)}.jpg";
-        await System.IO.File.WriteAllBytesAsync(fileName, bytes);
+        var zoomSession = await _zoomService.RefreshSessionAsync(sessionId, dto);
+        
+        if (zoomSession == null)
+            return NotFound();
+        
+        _logger.LogInformation("Refreshed session {SessionId}", sessionId);
+        
+        return Ok(zoomSession);
     }
     
+    [HttpDelete("session/{sessionId}/message")]
+    public async Task<IActionResult> StopSessionAsync([FromRoute] string sessionId)
+    {
+        await _zoomService.StopSessionAsync(sessionId);
+        
+        _logger.LogInformation("Stopped session {SessionId}", sessionId);
+        
+        return Ok();
+    }
+
+
+    [HttpPost("session/{sessionId}/detecting-frame")]
+    public async Task NextDetectingFrameAsync([FromRoute] string sessionId, [FromBody] FrameDataDto frameDataDto)
+    {
+        var frameId = DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString();
+        var bytes = Convert.FromBase64String(frameDataDto.Content);
+        var fileName = DirectoryHelpers.GetFramePath(sessionId, frameId);
+        await System.IO.File.WriteAllBytesAsync(fileName, bytes);
+        
+        _zoomMessageProducer.SendDetectingFrameMessage(new FrameMessage
+        {
+            FrameId = frameId,
+            SessionId = sessionId,
+            FilePath = DirectoryHelpers.GetAbsoluteFilePath(fileName),
+            Attendees = frameDataDto.Attendees
+        });
+        
+        _logger.LogInformation("Received detecting frame: {frameId}. SessionId: {SessionId}", frameId, sessionId);
+    }
+
+    [HttpPost("session/{sessionId}/verifying-frame")]
+    public async Task NextVerifyingFrameAsync([FromRoute] string sessionId, [FromBody] FrameDataDto frameDataDto)
+    {
+        var frameId = DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString();
+        var bytes = Convert.FromBase64String(frameDataDto.Content);
+        var fileName = DirectoryHelpers.GetFramePath(sessionId, frameId);
+        await System.IO.File.WriteAllBytesAsync(fileName, bytes);
+        var message = new FrameMessage
+        {
+            FrameId = frameId,
+            SessionId = sessionId,
+            FilePath = DirectoryHelpers.GetAbsoluteFilePath(fileName),
+            Attendees = frameDataDto.Attendees
+        };
+
+        var missedAttendees = await _userService.PopulateAttendeeImagesAsync(message.Attendees);
+        
+        if (missedAttendees.Count > 0)
+            message.Attendees = message.Attendees.Where(a => !missedAttendees.Contains(a.UserName)).ToList();
+
+        _zoomMessageProducer.SendVerifyFrameMessage(message);
+
+        _logger.LogInformation("Received verify frame: {frameId}. SessionId: {SessionId}", frameId, sessionId);
+
+        if (missedAttendees.Count > 0)
+        {
+            _logger.LogInformation("Missed attendees: {Attendees}. Trying to notify", string.Join(", ", missedAttendees));
+            await _zoomService.NotifyMissedAttendeeDataAsync(sessionId, missedAttendees);
+        }
+    }
+    
+    [HttpPost("reset-user-data")]
+    public Task ResetUserDataAsync()
+    {
+        return _userService.WarmUserDataAsync();
+    }
+
     [HttpPost("mq-test")]
     public async Task MqTestAsync([FromBody] TestMqMessageDto request)
     {
