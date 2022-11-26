@@ -94,37 +94,17 @@ public class ZoomController : ControllerBase
     [HttpPost("session/{sessionId}/detecting-frame")]
     public async Task NextDetectingFrameAsync([FromRoute] string sessionId, [FromBody] FrameDataDto frameDataDto)
     {
-        var frameId = DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString();
-        var bytes = Convert.FromBase64String(frameDataDto.Content);
-        var fileName = DirectoryHelpers.GetFramePath(sessionId, frameId);
-        await System.IO.File.WriteAllBytesAsync(fileName, bytes);
+        var message = await GetDefaultMessageAsync(sessionId, frameDataDto);
         
-        _zoomMessageProducer.SendDetectingFrameMessage(new FrameMessage
-        {
-            FrameId = frameId,
-            SessionId = sessionId,
-            FilePath = DirectoryHelpers.GetAbsoluteFilePath(fileName),
-            Attendees = frameDataDto.Attendees
-        });
+        _zoomMessageProducer.SendDetectingFrameMessage(message);
         
-        _logger.LogInformation("Received detecting frame: {frameId}. SessionId: {SessionId}", frameId, sessionId);
+        _logger.LogInformation("Received detecting frame: {frameId}. SessionId: {SessionId}", message.FrameId, sessionId);
     }
 
     [HttpPost("session/{sessionId}/verifying-frame")]
     public async Task NextVerifyingFrameAsync([FromRoute] string sessionId, [FromBody] FrameDataDto frameDataDto)
     {
-        var frameId = DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString();
-        var bytes = Convert.FromBase64String(frameDataDto.Content);
-        var fileName = DirectoryHelpers.GetFramePath(sessionId, frameId);
-        await System.IO.File.WriteAllBytesAsync(fileName, bytes);
-        var message = new FrameMessage
-        {
-            FrameId = frameId,
-            SessionId = sessionId,
-            FilePath = DirectoryHelpers.GetAbsoluteFilePath(fileName),
-            Attendees = frameDataDto.Attendees
-        };
-
+        var message = await GetDefaultMessageAsync(sessionId, frameDataDto);
         var missedAttendees = await _userService.PopulateAttendeeImagesAsync(message.Attendees);
         
         if (missedAttendees.Count > 0)
@@ -132,13 +112,40 @@ public class ZoomController : ControllerBase
 
         _zoomMessageProducer.SendVerifyFrameMessage(message);
 
-        _logger.LogInformation("Received verify frame: {frameId}. SessionId: {SessionId}", frameId, sessionId);
+        _logger.LogInformation("Received verify frame: {frameId}. SessionId: {SessionId}", message.FrameId, sessionId);
 
         if (missedAttendees.Count > 0)
         {
             _logger.LogInformation("Missed attendees: {Attendees}. Trying to notify", string.Join(", ", missedAttendees));
             await _zoomService.NotifyMissedAttendeeDataAsync(sessionId, missedAttendees);
         }
+    }
+    
+    [HttpPost("session/{sessionId}/analysing-frame")]
+    public async Task NextAnalysingFrameAsync([FromRoute] string sessionId, [FromBody] FrameDataDto frameDataDto)
+    {
+        var message = await GetDefaultMessageAsync(sessionId, frameDataDto);
+
+        _zoomMessageProducer.SendAnalysingFrameMessage(message);
+
+        _logger.LogInformation("Received analysing frame: {frameId}. SessionId: {SessionId}", message.FrameId, sessionId);
+    }
+
+    private async Task<FrameMessage> GetDefaultMessageAsync(string sessionId, FrameDataDto frameDataDto)
+    {
+        var frameId = DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString();
+        var bytes = Convert.FromBase64String(frameDataDto.Content);
+        var fileName = DirectoryHelpers.GetFramePath(sessionId, frameId);
+        await System.IO.File.WriteAllBytesAsync(fileName, bytes);
+        return new FrameMessage
+        {
+            FrameId = frameId,
+            SessionId = sessionId,
+            FilePath = DirectoryHelpers.GetAbsoluteFilePath(fileName),
+            Attendees = frameDataDto.Attendees,
+            PartialResult = frameDataDto.PartialResult,
+            Actions = frameDataDto.Actions
+        };
     }
     
     [HttpPost("reset-user-data")]

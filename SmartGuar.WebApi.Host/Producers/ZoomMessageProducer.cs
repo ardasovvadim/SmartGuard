@@ -31,6 +31,13 @@ public class ZoomMessageProducer : IZoomMessageProducer
         SendBase(queueName, frameMessage);
     }
 
+    public void SendAnalysingFrameMessage(FrameMessage message)
+    {
+        const string queueName = "sg-face-analysing-queue";
+        
+        SendBase(queueName, message);
+    }
+
     private void SendBase<T>(string queueName, T frameMessage)
     {
         using var connection = Connection();

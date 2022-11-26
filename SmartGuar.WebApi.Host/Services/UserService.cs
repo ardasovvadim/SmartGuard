@@ -51,10 +51,7 @@ public class UserService : IUserService
                 ImagePath = userImagePath
             };
 
-            _cache.Set(userName, user, new MemoryCacheEntryOptions
-            {
-                SlidingExpiration = TimeSpan.FromHours(1)
-            });
+            _cache.Set(userName, user);
 
             ++foundUserWithData;
         }

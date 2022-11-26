@@ -1,7 +1,7 @@
 import os
 import sys
 import argparse
-from smartguard.consumers import face_detecting_consumer, face_verify_consumer
+from smartguard.consumers import face_detecting_consumer, face_verify_consumer, face_analysing_cosumer
 
 
 def main():
@@ -12,6 +12,7 @@ def main():
     consumers = {
         'faceDetecting': face_detecting_consumer.prepare,
         'faceVerifying': face_verify_consumer.prepare,
+        'faceAnalysing': face_analysing_cosumer.prepare
     }
 
     consumerPrepare = consumers.get(args['consummer'])

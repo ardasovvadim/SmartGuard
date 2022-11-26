@@ -3,6 +3,8 @@ namespace SmartGuard.WebApi.Host.Models;
 public class FrameDataDto
 {
     public string Content { get; set; }
+    public bool PartialResult { get; set; } = false;
+    public IEnumerable<string>? Actions { get; set; }
     public IEnumerable<FrameAttendedDataDto> Attendees { get; set; }
 }
 

@@ -9,6 +9,9 @@ public class FrameMessage
     public string SessionId { get; set; }
     
     public string FilePath { get; set; }
+
+    public IEnumerable<string>? Actions { get; set; }
     
     public IEnumerable<FrameAttendedDataDto> Attendees { get; set; }
+    public bool PartialResult { get; set; } = false;
 }

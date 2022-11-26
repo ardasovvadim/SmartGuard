@@ -17,14 +17,20 @@ def prepare(receiveDetectingQueue=DEFAULT_RECEIVE_DETECTING_QUEUE,
     def onReceive(request):
         sessionId = request['sessionId']
         attendees = request['attendees']
+        frameId = request['frameId']
 
         if len(attendees) == 0:
-            print(f'[{receiveDetectingQueue}] No attendees found. SessionId: {sessionId}')
+            print(f'[{receiveDetectingQueue}] No attendees found. SessionId: {sessionId}. FrameId: {frameId}')
             return
 
         frameAttendees = parseImageFrame(request)
         for attendee, frame in frameAttendees:
-            attendee['faces'] = detect(frame, model, detectingModel)
+            try:
+                attendee['faces'] = detect(frame, model, detectingModel)
+            except Exception as e:
+                print(f'[{receiveDetectingQueue}] Error while detecting. SessionId: {sessionId}. FrameId: {frameId}')
+                attendee['faces'] = None
+                attendee['error'] = str(e)
 
         return request
 

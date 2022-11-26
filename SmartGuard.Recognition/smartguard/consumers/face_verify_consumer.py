@@ -30,9 +30,10 @@ def prepare(receiveDetectingQueue=DEFAULT_RECEIVE_DETECTING_QUEUE,
 
             try:
                 attendee['verifyingInfo'] = detect(frame, imagePath, verifyingModel, detectingModel)
-            except:
+            except Exception as e:
                 print(f'[{receiveDetectingQueue}] Error while verifying. SessionId: {sessionId}. FrameId: {frameId}')
                 attendee['verifyingInfo'] = None
+                attendee['error'] = str(e)
 
         return request
 
