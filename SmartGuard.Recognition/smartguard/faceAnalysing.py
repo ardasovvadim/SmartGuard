@@ -5,9 +5,9 @@ from smartguard.faceDetecting import prepareDetectingModel
 
 def prepareAnalysingModel(detectingModel):
     models = {
+        'emotion': DeepFace.build_model('Emotion'),
         'age': DeepFace.build_model('Age'),
         'gender': DeepFace.build_model('Gender'),
-        'emotion': DeepFace.build_model('Emotion'),
         'race': DeepFace.build_model('Race')
     }
 

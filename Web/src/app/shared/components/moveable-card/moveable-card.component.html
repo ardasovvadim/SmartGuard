@@ -1,0 +1,18 @@
+<div class="sg-toolbar sg-card"
+     cdkDrag
+     cdkDragBoundary="body"
+     [ngClass]="extraClasses"
+     [hidden]="isCardHidden">
+
+  <ng-content>
+  </ng-content>
+
+  <div class="sg-card-manager">
+    <span class="sg-card-manager-btn"
+          cdkDragHandle
+          style="cursor: move"
+          (click)="isCardHidden = false">➕</span>
+    <span class="sg-card-manager-btn" (click)="isCardHidden = true; onToggleCardHidden.emit(true)">✖️</span>
+  </div>
+
+</div>

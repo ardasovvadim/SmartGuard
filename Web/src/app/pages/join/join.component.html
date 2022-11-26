@@ -1,0 +1,42 @@
+<div class="sg-center">
+
+  <div class="sg-card">
+    <h4>💂 SmartGuard</h4>
+
+    <hr class="mt-5">
+
+    <b>Join to conference</b>
+
+    <form [formGroup]="form" (ngSubmit)="join(settings.getSettings())">
+      <div class="sg-input mt-10">
+        <label for="userName" class="sg-label">User name</label>
+        <input type="text" id="userName" placeholder="User name" formControlName="userName">
+      </div>
+
+      <div class="sg-input mt-10">
+        <label for="email" class="sg-label">Email</label>
+        <input type="text" id="email" placeholder="Email" formControlName="email">
+      </div>
+
+      <div class="sg-input mt-10">
+        <label for="meetingNumber" class="sg-label">Meeting number</label>
+        <input type="text" id="meetingNumber" placeholder="Meeting number" formControlName="meetingNumber">
+      </div>
+
+      <div class="sg-input mt-10">
+        <label for="passcode" class="sg-label">Passcode</label>
+        <input type="text" id="passcode" placeholder="Meeting number" formControlName="passcode">
+      </div>
+
+      <button class="sg-btn" type="submit">Join</button>
+      <button class="sg-btn" type="button" (click)="isSettingHidden = !isSettingHidden">Toggle settings</button>
+
+    </form>
+
+  </div>
+
+  <sg-moveable-card [isCardHidden]="isSettingHidden">
+    <sg-settings #settings></sg-settings>
+  </sg-moveable-card>
+
+</div>

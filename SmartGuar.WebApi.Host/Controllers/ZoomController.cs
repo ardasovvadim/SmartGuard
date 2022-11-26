@@ -2,7 +2,6 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
-using SmartGuard.WebApi.Host.Extensions;
 using SmartGuard.WebApi.Host.Helpers;
 using SmartGuard.WebApi.Host.Messages;
 using SmartGuard.WebApi.Host.Models;
@@ -117,7 +116,7 @@ public class ZoomController : ControllerBase
         if (missedAttendees.Count > 0)
         {
             _logger.LogInformation("Missed attendees: {Attendees}. Trying to notify", string.Join(", ", missedAttendees));
-            await _zoomService.NotifyMissedAttendeeDataAsync(sessionId, missedAttendees);
+            await _zoomService.NotifyMissedAttendeeDataAsync(sessionId, message.FrameId, missedAttendees);
         }
     }
     

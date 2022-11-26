@@ -20,20 +20,21 @@ def prepare(receiveDetectingQueue=DEFAULT_RECEIVE_DETECTING_QUEUE,
         attendees = request['attendees']
         actions = request['actions']
 
+        if len(attendees) == 0:
+            print(f'[{receiveDetectingQueue}] No attendees found. SessionId: {sessionId}. FrameId: {frameId}')
+            return
+
         if actions is None or len(actions) == 0:
             actions = ['emotion', 'age', 'gender', 'race']
 
         actions = tuple(actions)
-
-        if len(attendees) == 0:
-            print(f'[{receiveDetectingQueue}] No attendees found. SessionId: {sessionId}. FrameId: {frameId}')
-            return
+        actionModels = {action: models[action] for action in actions}
 
         frameAttendees = parseImageFrame(request)
 
         for attendee, frame in frameAttendees:
             try:
-                result = detect(frame, models, detectingModel, actions)
+                result = detect(frame, actionModels, detectingModel, actions)
                 attendee['statisticInfo'] = result
             except Exception as e:
                 print(f'[{receiveDetectingQueue}] Error while analysing. SessionId: {sessionId}. FrameId: {frameId}')

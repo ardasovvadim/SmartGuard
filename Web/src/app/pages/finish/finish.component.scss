@@ -1,0 +1,30 @@
+.sg-container {
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+}
+
+h3 {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.sg-card {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  left: 50%;
+  top: 50%;
+
+  max-width: 400px;
+  padding: 30px;
+}
+
+.sg-btn-group {
+  display: flex;
+  flex-wrap: wrap;
+
+  > .sg-btn {
+    flex: 1 1 100%;
+    margin-bottom: 10px;
+  }
+}

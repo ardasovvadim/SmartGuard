@@ -1,0 +1,95 @@
+<b class="d-block">General settings</b>
+
+<form [formGroup]="form">
+  <div class="sg-input">
+    <input type="checkbox" id="verification" formControlName="verification">
+    <label for="verification">Attendee verification</label>
+  </div>
+
+  <div class="sg-input">
+    <input type="checkbox" id="faceDetecting" formControlName="faceDetecting">
+    <label for="faceDetecting">Face detecting</label>
+  </div>
+
+  <div class="sg-input">
+    <input type="checkbox" id="faceRecognition" formControlName="faceRecognition">
+    <label for="faceRecognition">Face recognition</label>
+  </div>
+
+  <div class="sg-input">
+    <input type="checkbox" id="localRecording" formControlName="localRecording">
+    <label for="localRecording">Local recording</label>
+  </div>
+
+  <div class="sg-input">
+    <input type="checkbox" id="statistic" formControlName="statistic">
+    <label for="statistic">Statistic</label>
+
+    <div class="sg-input">
+      <input type="checkbox" id="emotion" formControlName="emotion">
+      <label for="emotion">Emotions</label>
+    </div>
+    <div class="sg-input">
+      <input type="checkbox" id="age" formControlName="age">
+      <label for="age">Age</label>
+    </div>
+    <div class="sg-input">
+      <input type="checkbox" id="genre" formControlName="genre">
+      <label for="age">Genre</label>
+    </div>
+    <div class="sg-input">
+      <input type="checkbox" id="race" formControlName="race">
+      <label for="age">Race</label>
+    </div>
+  </div>
+
+  <hr>
+
+  <b class="d-block">Rules</b>
+
+  <div class="sg-input">
+    <input type="checkbox" id="shouldBeOnePerson" formControlName="shouldBeOnePerson">
+    <label for="shouldBeOnePerson">Should be one person</label>
+  </div>
+
+  <div class="sg-input">
+    <input type="checkbox" id="attendance" formControlName="attendance">
+    <label for="attendance">Attendance</label>
+  </div>
+
+  <div class="sg-input">
+    <input type="checkbox" id="cameraShouldBeEnabled" formControlName="cameraShouldBeEnabled">
+    <label for="cameraShouldBeEnabled">Camera should be enabled</label>
+  </div>
+
+  <hr>
+
+  <b class="d-block">Interval settings</b>
+
+  <div class="sg-input">
+    <label for="faceDetectingInterval">Face detecting interval - {{faceDetectingInterval}} ms</label>
+    <input type="range"
+           id="faceDetectingInterval"
+           [max]="3000"
+           [min]="1000"
+           [(ngModel)]="faceDetectingInterval">
+  </div>
+
+  <div class="sg-input mt-10">
+    <label for="faceRecognitionInterval">Face recognition interval - {{faceVerifyingInterval}} s</label>
+    <input type="range"
+           [max]="100"
+           [min]="10"
+           [(ngModel)]="faceVerifyingInterval"
+           id="faceRecognitionInterval">
+  </div>
+
+  <div class="sg-input mt-10">
+    <label for="statisticInterval">Statistic interval - {{statisticInterval}}</label>
+    <input type="range"
+           [max]="100"
+           [min]="10"
+           [(ngModel)]="statisticInterval"
+           id="statisticInterval">
+  </div>
+</form>

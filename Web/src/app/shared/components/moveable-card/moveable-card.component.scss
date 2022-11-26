@@ -1,0 +1,36 @@
+.sg-toolbar {
+  position: absolute;
+  left: 10px;
+  top: 10px;
+  z-index: 100;
+
+  max-width: 370px;
+  min-width: 150px;
+
+  min-height: 100px;
+
+  > *:not(.sg-btn-group) {
+    display: block;
+  }
+
+  b {
+    margin-bottom: 10px;
+  }
+}
+
+.sg-card-manager {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+
+  > * {
+    display: inline-block;
+  }
+}
+
+.sg-card-manager-btn {
+  padding: 3px 5px;
+  cursor: pointer;
+  border-radius: 50%;
+  font-size: 1rem;
+}

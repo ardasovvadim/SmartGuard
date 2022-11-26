@@ -1,0 +1,222 @@
+<div class="sg-toolbar-icon"
+     cdkDrag
+     cdkDragBoundary="body"
+     [hidden]="isStartIconHidden"
+     (click)="toolbarPanel.toggleCardHidden(); isStartIconHidden = true">
+  <span>💂</span>
+</div>
+
+<sg-moveable-card
+  [isCardHidden]="!isToolbarOpen"
+  #toolbarPanel
+  extraClasses="sg-main-toolbar"
+  (onToggleCardHidden)="onToolboxHiddenChanged($event)">
+  <b>Toolbar</b>
+
+  <div class="sg-btn-group">
+    <button class="sg-btn" (click)="click('SendDetectFrame')">Send detect frame</button>
+    <button class="sg-btn" (click)="click('SendVerifyFrame')">Send verify frame</button>
+    <button class="sg-btn" (click)="click('SendStatisticFrame')">Send statistic frame</button>
+    <button class="sg-btn" (click)="click('ToggleGalleryView')">Toggle gallery view</button>
+    <button class="sg-btn" (click)="click('Clear')">Clear</button>
+  </div>
+
+  <hr>
+
+  <b>Panels</b>
+
+  <div class="sg-btn-group">
+    <button class="sg-btn" (click)="statusPanel.toggleCardHidden()">Toggle alerts panel</button>
+    <button class="sg-btn" (click)="attendeePanel.toggleCardHidden()">Toggle attendee panel</button>
+    <button class="sg-btn" (click)="settingsHidden = !settingsHidden">Toggle settings</button>
+  </div>
+
+  <hr>
+
+  <b>Status</b>
+
+  <div class="sg-scrollable" style="max-height: 250px;">
+    <hr>
+
+    <b>Zoom Hub connection info</b>
+    <span>Is connected: {{isConnected | boolToIcon}}</span>
+    <span>Session ID: {{sessionId}}</span>
+    <span>Connection ID: {{connectionId}}</span>
+
+    <hr>
+
+    <b>Face detecting</b>
+    <span>Interval: {{faceDetectingInterval}} ms</span>
+    <span>Next in: {{detectingTime}} ms</span>
+    <span>Status: {{isFaceDetecting | boolToIcon}}</span>
+
+    <div class="sg-btn-group mt-10">
+      <button class="sg-btn" (click)="click('ToggleFaceDetecting')">Toggle face detecting</button>
+    </div>
+
+    <hr>
+
+    <b>Face verifying</b>
+    <span>Interval: {{faceVerifyingInterval}} s</span>
+    <span>Next in: {{verifyingTime / 1000}} s</span>
+    <span>Status: {{isFaceVerifying | boolToIcon}}</span>
+
+    <div class="sg-btn-group mt-10">
+      <button class="sg-btn" (click)="click('ToggleFaceVerifying')">Toggle face verifying</button>
+    </div>
+
+    <hr>
+
+    <b>Statistic</b>
+    <span>Interval: {{statisticInterval}} s</span>
+    <span>Next in: {{statisticTime / 1000}} s</span>
+    <span>Status: {{isStatistic | boolToIcon}}</span>
+
+    <div class="sg-btn-group mt-10">
+      <button class="sg-btn" (click)="click('ToggleStatistic')">Toggle statistic</button>
+    </div>
+  </div>
+
+</sg-moveable-card>
+
+<sg-moveable-card extraClasses="sg-toolbar--alerts" [isCardHidden]="!alertPanel" #statusPanel>
+  <b>Alerts</b>
+
+  <div class="sg-items">
+    <ng-container *ngIf="alerts.length; else elseAlerts">
+      <div class="sg-item" *ngFor="let alert of alerts">
+        <span>Time: {{alert.time | date: 'mediumTime'}}</span>
+        <span>{{alert.color | alertColorToIcon}} {{alert.text}}</span>
+      </div>
+    </ng-container>
+    <ng-template #elseAlerts>
+      <div class="sg-item">
+        <span>Alert list is empty</span>
+      </div>
+    </ng-template>
+  </div>
+</sg-moveable-card>
+
+<sg-moveable-card extraClasses="sg-toolbar--attendees" [isCardHidden]="attendeePanelHidden" #attendeePanel>
+  <b>Attendee status</b>
+
+  <div class="sg-items">
+    <ng-container *ngIf="attendees.length; else elseAttendee">
+      <div class="sg-item" *ngFor="let attendee of attendees">
+        <span>Name: {{attendee.userName}}</span>
+        <span>Active: {{attendee.active | boolToIcon}}</span>
+        <span *ngIf="attendee.skipped != null">Skipped: {{attendee.skipped | boolToIcon}}</span>
+        <span>Verified: {{attendee.verified == null ? '🔄' : attendee.verified | boolToIcon}}</span>
+        <span>Last verifies: {{attendee.lastVerifiedTime == null ? '🔄' : attendee.lastVerifiedTime | date: 'mediumTime'}}</span>
+        <ng-template [ngIf]="displayAttendeeExtraInfo">
+          <span>Dominant emotion: {{attendee.emotion | nullAsLoading}}</span>
+          <span>Age: {{attendee.age | nullAsLoading}}</span>
+          <span>Genre: {{attendee.gender | nullAsLoading}}</span>
+          <span>Race: {{attendee.race | nullAsLoading}}</span>
+        </ng-template>
+      </div>
+    </ng-container>
+    <ng-template #elseAttendee>
+      <div class="sg-item">
+        <span>Attendee list is empty</span>
+      </div>
+    </ng-template>
+  </div>
+</sg-moveable-card>
+
+<sg-moveable-card extraClasses="sg-settings" [isCardHidden]="settingsHidden" #settingPanel>
+  <b>General settings</b>
+
+  <div class="sg-input">
+    <input type="checkbox" id="verification">
+    <label for="verification">Attendee verification</label>
+  </div>
+
+  <div class="sg-input">
+    <input type="checkbox" id="faceDetecting">
+    <label for="faceDetecting">Face detecting</label>
+  </div>
+
+  <div class="sg-input">
+    <input type="checkbox" id="faceRecognition">
+    <label for="faceRecognition">Face recognition</label>
+  </div>
+
+  <div class="sg-input">
+    <input type="checkbox" id="localRecording">
+    <label for="localRecording">Local recording</label>
+  </div>
+
+  <div class="sg-input">
+    <input type="checkbox" id="getStatistic">
+    <label for="getStatistic">Statistic</label>
+
+    <div class="sg-input">
+      <input type="checkbox" id="emotion">
+      <label for="emotion">Emotions</label>
+    </div>
+    <div class="sg-input">
+      <input type="checkbox" id="age">
+      <label for="age">Age</label>
+    </div>
+    <div class="sg-input">
+      <input type="checkbox" id="genre">
+      <label for="age">Genre</label>
+    </div>
+    <div class="sg-input">
+      <input type="checkbox" id="race">
+      <label for="age">Race</label>
+    </div>
+  </div>
+
+  <hr>
+
+  <b>Rules</b>
+
+  <div class="sg-input">
+    <input type="checkbox" id="shouldBeOnePerson">
+    <label for="shouldBeOnePerson">Should be one person</label>
+  </div>
+
+  <div class="sg-input">
+    <input type="checkbox" id="attendance">
+    <label for="attendance">Attendance</label>
+  </div>
+
+  <div class="sg-input">
+    <input type="checkbox" id="cameraShouldBeEnabled">
+    <label for="cameraShouldBeEnabled">Camera should be enabled</label>
+  </div>
+
+  <hr>
+
+  <b>Interval settings</b>
+
+  <div class="sg-input">
+    <label for="faceDetectingInterval">Face detecting interval - {{faceDetectingInterval}} ms</label>
+    <input type="range"
+           id="faceDetectingInterval"
+           [max]="3000"
+           [min]="100"
+           [(ngModel)]="faceDetectingInterval">
+  </div>
+
+  <div class="sg-input mt-10">
+    <label for="faceRecognitionInterval">Face recognition interval - {{faceVerifyingInterval}} s</label>
+    <input type="range"
+           [max]="300"
+           [min]="10"
+           [(ngModel)]="faceVerifyingInterval"
+           id="faceRecognitionInterval">
+  </div>
+
+  <div class="sg-input mt-10">
+    <label for="statisticInterval">Statistic interval - {{statisticInterval}}</label>
+    <input type="range"
+           [max]="300"
+           [min]="10"
+           [(ngModel)]="statisticInterval"
+           id="statisticInterval">
+  </div>
+
+</sg-moveable-card>

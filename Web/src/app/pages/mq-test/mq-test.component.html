@@ -1,0 +1,9 @@
+<div class="test">
+  <p>Test MQ</p>
+  <input type="text" placeholder="Message" [(ngModel)]="testMessage">
+  <button (click)="sendTestMqMessage()">Send test message</button>
+  <p>Messages:</p>
+  <ul>
+    <li *ngFor="let msg of messages">{{msg}}</li>
+  </ul>
+</div>

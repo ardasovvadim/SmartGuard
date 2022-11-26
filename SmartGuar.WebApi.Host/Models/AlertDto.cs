@@ -7,6 +7,7 @@ public class AlertDto
     public AlertCode Code { get; set; }
     public object? Data { get; set; }
     public DateTime Time { get; set; } = DateTime.UtcNow;
+    public string? FrameId { get; set; }
 }
 
 public enum AlertCode

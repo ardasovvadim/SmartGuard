@@ -1,0 +1,214 @@
+<div class="sg-container">
+  <div class="sg-statistic">
+
+    <div class="sg-card sg-header">
+      <h3 class="mt-10">🤓 SmartGuard - Statistic</h3>
+
+      <div class="sg-btn-group mt-20">
+        <button class="sg-btn" (click)="tab = 1">Alerts list</button>
+        <button class="sg-btn" (click)="tab = 2">Emotions chart</button>
+        <button class="sg-btn" (click)="tab = 3">Events timeline</button>
+        <button class="sg-btn">Export statistic</button>
+        <button class="sg-btn">Save meeting recording</button>
+        <button class="sg-btn" routerLink="/join">Join to meeting</button>
+      </div>
+
+    </div>
+
+    <ng-template [ngIf]="tab == 1">
+      <div class="sg-card mt-30">
+        <h4>Alert list</h4>
+
+        <div class="mt-20">
+          <form class="uk-grid-small" uk-grid>
+            <div class="uk-width-1-4">
+              <div class="uk-search uk-search-default">
+                <span class="uk-search-icon-flip" uk-search-icon></span>
+                <input class="uk-search-input" type="search" placeholder="Search" aria-label="Search">
+              </div>
+            </div>
+            <div class="uk-width-1-5">
+              <select class="uk-select" aria-label="Select">
+                <option>Color</option>
+                <option>Red</option>
+                <option>Yellow</option>
+                <option>Green</option>
+              </select>
+            </div>
+            <div class="uk-width-1-5">
+              <select class="uk-select" aria-label="Select">
+                <option>Code</option>
+                <option>Red</option>
+                <option>Yellow</option>
+                <option>Green</option>
+              </select>
+            </div>
+            <div class="uk-width-1-5">
+              <input class="uk-input" type="time" placeholder="date" aria-label="100">
+            </div>
+          </form>
+
+        </div>
+
+        <hr>
+
+        <table class="uk-table uk-table-divider">
+          <thead>
+          <tr>
+            <th style="min-width: 100px" class="uk-table-shrink">Time</th>
+            <th class="uk-table-expand">Text</th>
+            <th style="min-width: 100px" class="uk-table-shrink">Color</th>
+            <th style="min-width: 200px" class="uk-table-shrink">Code</th>
+          </tr>
+          </thead>
+          <tbody>
+          <span></span>
+          <tr *ngFor="let alert of alerts">
+            <td>{{alert.time | date: 'mediumTime'}}</td>
+            <td class="uk-text-truncate">{{alert.text}}</td>
+            <td>{{alert.color | alertColorToIcon}}</td>
+            <td>{{alert.code | alertCodeToText}}</td>
+          </tr>
+          </tbody>
+        </table>
+
+      </div>
+    </ng-template>
+
+    <ng-template [ngIf]="tab == 2">
+      <div class="sg-card mt-30">
+        <h4>Emotions chart</h4>
+
+        <div class="mt-20">
+          <form class="uk-grid-small" uk-grid>
+            <div class="uk-width-1-5">
+              <label class="uk-form-label">Emotions</label>
+              <select class="uk-select" aria-label="Select">
+                <option>Emotions</option>
+                <option>Red</option>
+                <option>Yellow</option>
+                <option>Green</option>
+              </select>
+            </div>
+            <div class="uk-width-1-5">
+              <label class="uk-form-label">From time</label>
+              <input class="uk-input" type="time" placeholder="date" aria-label="100">
+            </div>
+            <div class="uk-width-1-5">
+              <label class="uk-form-label">To time</label>
+              <input class="uk-input" type="time" placeholder="date" aria-label="100">
+            </div>
+          </form>
+        </div>
+
+        <hr>
+
+        <div class="sg-chart mt-50">
+          <ngx-charts-line-chart
+            [results]="emotionsStatistic"
+            [xAxisLabel]="'Session time'"
+            [legendTitle]="'Emotions per session time'"
+            [yAxisLabel]="'Attendees'"
+            [legend]="true"
+            [showXAxisLabel]="true"
+            [showYAxisLabel]="true"
+            [xAxis]="true"
+            [yAxis]="true"
+            [gradient]="true"
+            [xAxisTickFormatting]="formatDate"
+          ></ngx-charts-line-chart>
+        </div>
+
+      </div>
+    </ng-template>
+
+    <ng-template [ngIf]="tab == 3">
+      <div class="sg-card mt-30">
+        <h4>Events timeline</h4>
+
+        <div class="mt-20">
+          <form class="uk-grid-small" uk-grid>
+            <div class="uk-width-1-5">
+              <label class="uk-form-label">Alert color</label>
+              <select class="uk-select" aria-label="Select">
+                <option>All</option>
+                <option>Red</option>
+                <option>Yellow</option>
+                <option>Green</option>
+              </select>
+            </div>
+            <div class="uk-width-1-5">
+              <label class="uk-form-label">From time</label>
+              <input class="uk-input" type="time" placeholder="date" aria-label="100" [value]="minAlertTimeAsStr">
+            </div>
+            <div class="uk-width-1-5">
+              <label class="uk-form-label">To time</label>
+              <input class="uk-input" type="time" placeholder="date" aria-label="100" [value]="maxAlertTimeAsStr">
+            </div>
+          </form>
+        </div>
+
+        <hr>
+
+        <!--        <div>-->
+        <!--          <p>Min: {{minAlertTime}}</p>-->
+        <!--          <p>Min: {{maxAlertTime}}</p>-->
+        <!--        </div>-->
+
+        <div class="sg-timeline-scrollable">
+          <div class="sg-timeline">
+            <div class="sg-time-slot" *ngFor="let timeSlot of alertTimeSlots" (click)="selectTimeSlot(timeSlot)">
+
+              <!--              <span *ngFor="let alert of alertInTimeSlot(timeSlot)">-->
+              <!--                  {{alert.time}}-->
+              <!--              </span>-->
+
+              <span *ngFor="let category of getCountAlertsByColorsInTimeSlot(timeSlot)" [ngClass]="category.class">
+                {{category.color | alertColorToIcon}} {{category.name}}: {{category.value}}
+              </span>
+
+              <div class="sg-time-slot-label">
+                <span>{{timeSlot | date: 'mediumTime'}}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <hr>
+
+        <div class="sg-alerts-tab">
+
+          <div class="">
+            <p class="uk-margin-bottom uk-text-bold">Alert list</p>
+            <div class="sg-scrollable">
+              <div class="sg-alert" [class.sg-alert-active]="alert == selectedAlert" *ngFor="let alert of alertsFromSelectedTimeSlot" (click)="selectAlert(alert)">
+                <span>Time: {{alert.time | date: 'mediumTime'}}</span>
+                <span>Text: {{alert.text}}</span>
+                <span>Code: {{alert.code | alertCodeToText}}</span>
+                <span>Color: {{alert.color | alertColorToIcon}}</span>
+                <span *ngIf="(!!alert.frameId)">Image: {{(!!alert.frameId) | boolToIcon}}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="sg-alert-preview">
+            <span class="sg-img-preview-label" *ngIf="!selectedAlert || !selectedAlert?.frameId">Frame preview</span>
+
+            <a class="sg-alert-preview-img" href="#modal-media-image" uk-toggle>
+              <img [src]="getFramePath(selectedAlert.frameId)" *ngIf="selectedAlert && selectedAlert?.frameId" />
+            </a>
+
+            <div id="modal-media-image" class="uk-flex-top" uk-modal>
+              <div class="uk-modal-dialog uk-width-auto uk-margin-auto-vertical">
+                <button class="uk-modal-close-outside" type="button" uk-close></button>
+                <img [src]="getFramePath(selectedAlert.frameId)" *ngIf="selectedAlert && selectedAlert?.frameId" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ng-template>
+
+  </div>
+</div>
+

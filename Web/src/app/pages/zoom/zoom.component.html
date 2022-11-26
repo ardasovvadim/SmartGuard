@@ -1,0 +1,30 @@
+<main>
+  <h1>Zoom Meeting SDK Sample Angular</h1>
+
+  <div id="meetingSDKElement">
+  </div>
+
+<!--  <button (click)="startZoomSdk()">Start</button>-->
+
+  <sg-toolbar
+    [sessionId]="sessionId$ | async"
+    [isFaceDetecting]="isFaceDetecting"
+    [detectingTime]="detectingInterval - ((detectingTimer.timeMs$ | async) % detectingInterval)"
+    [faceDetectingInterval]="detectingInterval"
+    [isFaceVerifying]="isFaceVerifying"
+    [verifyingTime]="verifyInterval - ((verifyTimer.timeMs$ | async) % verifyInterval)"
+    [faceVerifyingInterval]="verifyInterval"
+    [isStatistic]="isStatistic"
+    [statisticInterval]="statisticInterval"
+    [statisticTime]="statisticInterval - ((statisticTimer.timeMs$ | async) % statisticInterval)"
+    [isConnected]="isConnected$ | async"
+    [connectionId]="connectionId$ | async"
+    [attendees]="allAttendees"
+    [attendeePanelHidden]="false"
+    [alertPanel]="true"
+    [alerts]="alerts"
+    (onClick)="dispatchCommand($event)"
+  ></sg-toolbar>
+
+</main>
+

@@ -1,0 +1,150 @@
+.sg-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 50px;
+  > * {
+    flex: 1 1 100%;
+  }
+}
+
+.sg-statistic {
+  max-width: 1200px;
+  padding: 0 15px;
+}
+
+.sg-header {
+  border-radius: 0 0 15px 15px;
+}
+
+.sg-chart {
+  width: 100%;
+  height: 400px;
+}
+
+.sg-timeline-scrollable {
+  width: 100%;
+  overflow-y: scroll;
+}
+
+.sg-timeline {
+  width: fit-content;
+  height: 200px;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: center;
+  padding: 20px 20px 40px;
+
+  .sg-time-slot {
+    min-width: 140px;
+    min-height: 100px;
+    margin-right: 20px;
+    position: relative;
+
+    cursor: pointer;
+    user-select: none;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    border: 1px solid rgba(0, 0, 0, .1);
+    border-radius: 15px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, .1);
+
+    > &:last-of-type {
+      margin-right: 0;
+    }
+
+    &:has(> .sg-alert-green) {
+      background: #a6ffb6;
+    }
+
+    &:has(> .sg-alert-yellow) {
+      background: #fffba6;
+    }
+
+    &:has(> .sg-alert-red) {
+      background: #ffaca6;
+    }
+  }
+
+  .sg-time-slot-label {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    transform: translateY(100%);
+    text-align: center;
+    padding: 5px;
+  }
+}
+
+.sg-alert {
+  padding: 10px 5px;
+  width: 100%;
+  border-top: 1px solid rgba(0, 0, 0, .1);
+  cursor: pointer;
+
+  &:last-of-type {
+    border-bottom: 1px solid rgba(0, 0, 0, .1);
+  }
+
+  > * {
+    display: block;
+  }
+
+  &.sg-alert-active {
+    background: rgba(0, 0, 0, .1);
+  }
+
+  &:hover {
+    background: rgba(0, 0, 0, .1);
+  }
+}
+
+.sg-alerts-tab {
+  width: 100%;
+  display: flex;
+
+  >div:first-of-type {
+    width: 33.3333333333%;
+  }
+
+  >div:last-of-type {
+    width: 66.6666666667%;
+  }
+
+  .sg-alert-preview {
+    padding: 15px;
+    position: relative;
+
+    .sg-img-preview-label {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+  }
+
+}
+
+.sg-scrollable {
+  overflow-y: scroll;
+  height: 350px;
+  width: 100%;
+}
+
+.sg-alert-preview-img {
+  height: 350px;
+  display: block;
+  border: 1px solid rgba(0, 0, 0, .1);
+
+  > img {
+    display: block;
+    height: 350px;
+  }
+}
