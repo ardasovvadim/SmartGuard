@@ -479,7 +479,7 @@ export class ZoomComponent implements OnInit, OnDestroy {
       actions.push('age');
 
     if (settings.genre)
-      actions.push('genre');
+      actions.push('gender');
 
     if (settings.race)
       actions.push('race');

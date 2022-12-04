@@ -9,8 +9,10 @@ DEFAULT_RESULT_DETECTING_QUEUE = 'sg-face-verify-result-queue'
 
 def prepare(receiveDetectingQueue=DEFAULT_RECEIVE_DETECTING_QUEUE,
             resultDetectingQueue=DEFAULT_RESULT_DETECTING_QUEUE,
-            verifyingModel='VGG-Face',
-            detectingModel='mediapipe',
+            # verifyingModel='VGG-Face',
+            verifyingModel='ArcFace',
+            # detectingModel='mediapipe',
+            detectingModel='mtcnn',
             host=DEFAULT_HOST):
     prepareVerifyingModel(verifyingModel, detectingModel)
 

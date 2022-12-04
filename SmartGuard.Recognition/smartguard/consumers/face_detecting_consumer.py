@@ -9,7 +9,8 @@ DEFAULT_RESULT_DETECTING_QUEUE = 'sg-face-detecting-result-queue'
 
 def prepare(receiveDetectingQueue=DEFAULT_RECEIVE_DETECTING_QUEUE,
             resultDetectingQueue=DEFAULT_RESULT_DETECTING_QUEUE,
-            model='mediapipe',
+            # model='mediapipe',
+            model='mtcnn',
             host=DEFAULT_HOST):
 
     detectingModel = prepareDetectingModel(model)
